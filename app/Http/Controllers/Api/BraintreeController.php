@@ -8,38 +8,47 @@ use Braintree\Gateway;
 
 class BraintreeController extends Controller
 {
-    /* Dichiarazione la variabile d'istanza per il gateway */
+    /* Dichiarazione la variabile d'istanza per la gestione del gateway di pagamento Braintree */
     protected $gateway;
 
     /**
-     * Configurazione dell'ambiente e delle credenziali dell' API
+     * Costruttore per inizializzare il gateway Braintree
+     * Configurazione dell'ambiente (sandbox) e delle credenziali dell' API (merchantId, publicKey, privateKey)
      */
     public function __construct()
     {
         $this->gateway = new Gateway([
-            'environment' => 'sandbox',
-            'merchantId' => env('BRAINTREE_MERCHANT_ID'),
-            'publicKey' => env('BRAINTREE_PUBLIC_KEY'),
-            'privateKey' => env('BRAINTREE_PRIVATE_KEY')
+            'environment' => 'sandbox', // Ambiente di test
+            'merchantId' => env('BRAINTREE_MERCHANT_ID'), // Merchant ID
+            'publicKey' => env('BRAINTREE_PUBLIC_KEY'), // Public Key
+            'privateKey' => env('BRAINTREE_PRIVATE_KEY') // Private Key
         ]);
     }
 
     /**
-     * Generazione del token per il client
+     * Generazione del token per il client:
      * Il token contiene tutte le informazioni d'autorizzazione e configurazione di cui il client ha bisogno
      * per inizializzare l'SDK
+     * @return JsonResponse Risposta JSON con il token generato
      */
     public function token()
     {
+        /* Generazione del token tramite il gateway */
         $clientToken = $this->gateway->clientToken()->generate();
-        return response()->json([
+        return response()->json([ // Restituisce un JSON con il token generato
             "success" => true,
             "clientToken" => $clientToken
         ]);
     }
 
     /**
-     * Funzione del checkout del pagamento
+     * Funzione del checkout del pagamento:
+     * Elabora un pagamento ricevuto dal front-end
+     * , valida i dati del pagamento
+     * , crea la transazione
+     * , restituisce il risultato della transazione come JSON
+     * @param Request $request Richiesta HTTP con i dati del pagamento
+     * @return JsonResponse Risposta JSON con il risultato della transazione
      */
     public function checkout(Request $request)
     {
