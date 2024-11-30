@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
+/* Rotta per la generazione del token    */
 Route::get('/token', [BraintreeController::class, 'token'])->name('api.token');
+/* Rotta per il checkout del pagamento */
 Route::post('/checkout', [BraintreeController::class, 'checkout'])->name('api.checkout');
